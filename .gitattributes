@@ -1,0 +1,19 @@
+# Normalize line endings. Shell scripts and anything copied into the Docker
+# image MUST be LF, otherwise bash chokes on the CR (\r) — "bad interpreter".
+* text=auto
+*.sh    text eol=lf
+*.py    text eol=lf
+Dockerfile text eol=lf
+.env.example text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.ps1   text eol=crlf
+
+# Binary assets — never touch line endings.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.fbx   binary
+*.obj   binary

@@ -1,0 +1,15 @@
+# Original deformation-transfer dependencies (Python 3.9, do not bump)
+numpy==1.20.*
+scipy==1.6.*
+PyWavefront==1.3.*
+tqdm==4.59.*
+
+# UI server
+fastapi==0.103.*
+uvicorn[standard]==0.23.*
+python-multipart==0.0.6
+
+# Optional: Intel MKL Pardiso for ~2-4x faster sparse LU solves on multi-core.
+# If install fails (no MKL on this box, ARM, etc.) the solver gracefully falls
+# back to scipy SuperLU — pipeline still works, just slower.
+pypardiso==0.4.*

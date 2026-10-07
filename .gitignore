@@ -1,0 +1,32 @@
+*.log
+logs/
+tsconfig.tsbuildinfo
+
+# local settings
+.env
+
+# runtime artifacts
+backend/workspace/
+frontend/dist/
+
+# python / node environments (regenerated on each machine)
+backend/.venv/
+__pycache__/
+*.pyc
+frontend/node_modules/
+
+# editor / tool state
+.claude/settings.local.json
+.idea/
+.vscode/
+.DS_Store
+
+# local-only real-asset test data (not redistributable)
+testfit/
+
+# demo assets: the upstream originals are large and re-downloadable
+# (`python demo_assets/prepare.py fetch`); only the trimmed files we actually
+# ship are committed. See demo_assets/README.md.
+demo_assets/ict-facekit/*.obj
+demo_assets/ict-facekit/vertex_indices.json
+demo_assets/makehuman/base.obj

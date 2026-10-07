@@ -1,0 +1,64 @@
+Chameleon Warp
+==============
+
+This product is a browser-based UI (FastAPI backend + React/three.js frontend)
+built on top of an existing implementation of deformation transfer for triangle
+meshes. It is distributed under the MIT License (see LICENSE).
+
+
+Third-party components
+----------------------
+
+1. Deformation-Transfer-for-Triangle-Meshes
+   https://github.com/mickare/Deformation-Transfer-for-Triangle-Meshes
+
+   The Python algorithm core under `backend/dt_core/` is derived from and reuses
+   substantial portions of this project. It is redistributed here under its
+   original MIT License, reproduced in full below:
+
+     MIT License
+
+     Copyright (c) 2021 Michael Käser, Jasmin Hoffmann
+
+     Permission is hereby granted, free of charge, to any person obtaining a
+     copy of this software and associated documentation files (the "Software"),
+     to deal in the Software without restriction, including without limitation
+     the rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons to whom the
+     Software is furnished to do so, subject to the following conditions:
+
+     The above copyright notice and this permission notice shall be included in
+     all copies or substantial portions of the Software.
+
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+     DEALINGS IN THE SOFTWARE.
+
+
+2. ICT-FaceKit (light model)
+   https://github.com/USC-ICT/ICT-FaceKit
+
+   Sample meshes under `demo_assets/ict-facekit/` (trimmed). Copyright (c) 2020
+   USC Institute for Creative Technologies, MIT License — full text in
+   `demo_assets/ict-facekit/LICENSE-ICT-FaceKit.txt`.
+
+3. MakeHuman assets
+   https://github.com/makehumancommunity/makehuman
+   https://github.com/makehumancommunity/makehuman-assets
+
+   Sample meshes under `demo_assets/makehuman/` (trimmed). CC0 1.0 — text in
+   `demo_assets/makehuman/LICENSE-MakeHuman-assets.txt`.
+
+
+Academic reference
+------------------
+
+The underlying method is described in:
+
+  Robert W. Sumner and Jovan Popović.
+  "Deformation Transfer for Triangle Meshes."
+  ACM Transactions on Graphics (SIGGRAPH), 2004.

@@ -1,0 +1,888 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --panel: #181b22;
+  --panel-2: #20242d;
+  --border: #2a2f3a;
+  --text: #d8dde6;
+  --muted: #8a93a3;
+  --accent: #5fb3f5;
+  --accent-strong: #2f8fd6;
+  --ok: #6dca8b;
+  --warn: #ffc05b;
+  --err: #f06b6b;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+}
+.brand { font-weight: 600; letter-spacing: 0.2px; }
+.topbar-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--panel-2);
+}
+.mode-tab {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.mode-tab + .mode-tab { border-left: 1px solid var(--border); }
+.mode-tab.active {
+  background: var(--accent-strong);
+  color: white;
+  font-weight: 600;
+}
+.mode-tab:disabled { color: #555; cursor: not-allowed; }
+
+/* Viewports on the left (full height), the wizard sidebar on the right with
+   its Back/Next bar pinned to the bottom of that column. */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.viewports {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  min-height: 0;
+}
+/* Pin mode: one full-width viewport with the body overlaid (combined workspace). */
+.viewports.combined {
+  grid-template-columns: 1fr;
+}
+.viewport-cell {
+  background: var(--bg);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Narrow windows: give the sidebar less, and stack the two viewports instead
+   of squeezing them into a pair of unusable slivers. */
+@media (max-width: 1200px) {
+  .main-grid { grid-template-columns: 1fr 330px; }
+}
+@media (max-width: 1000px) {
+  .viewports { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .viewports.combined { grid-template-rows: 1fr; }
+}
+
+.viewport-wrap {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+.viewport-title {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.viewport {
+  position: relative;
+  min-height: 0;
+  background: #1d1f24;
+  outline: 2px dashed transparent;
+  outline-offset: -8px;
+  transition: outline-color 0.12s;
+}
+.viewport.drop-active { outline-color: var(--accent); }
+.viewport-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.sidebar {
+  grid-column: 2;
+  grid-row: 1;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Wizard navigation. Pinned under the sidebar so Back/Next never scroll away —
+   with a long step (markers, refit refine) they otherwise end up off-screen. */
+.step-nav {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+}
+.step-nav button { width: auto; margin: 0; white-space: nowrap; }
+.step-nav-label {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.panel-count {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  font-weight: 500;
+  margin-left: 4px;
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.hint.subtle { font-size: 11px; opacity: 0.8; }
+.hint-inline { color: var(--muted); font-size: 12px; margin-left: 8px; }
+.empty {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.row.state { margin-top: 8px; font-size: 12px; }
+.row.state .ok { color: var(--ok); }
+.row.state .todo { color: var(--muted); }
+
+button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+button:hover { background: #252a35; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.ghost { background: transparent; }
+button.primary {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: white;
+  font-weight: 600;
+  padding: 8px 12px;
+  width: 100%;
+  margin-top: 6px;
+}
+button.primary:hover:not(:disabled) { background: var(--accent); }
+button.link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 12px;
+}
+a.primary.as-button {
+  display: inline-block;
+  background: var(--accent-strong);
+  border: 1px solid var(--accent-strong);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  margin: 6px 0 10px 0;
+  box-sizing: border-box;
+}
+a.primary.as-button:hover { background: var(--accent); }
+
+a.secondary.as-button {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  width: 100%;
+  text-align: center;
+  margin: 4px 0 6px 0;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+a.secondary.as-button:hover { background: var(--panel); border-color: var(--accent); }
+
+.fbx-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  background: rgba(95, 179, 245, 0.18);
+  color: var(--accent);
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  vertical-align: 2px;
+}
+
+.fbx-extract-note {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(109, 202, 139, 0.10);
+  border: 1px solid var(--ok);
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fbx-extract-note button.link { color: var(--ok); flex-shrink: 0; }
+
+/* ---------- Toggles in sidebar panels ---------- */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 12px;
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--text);
+  user-select: none;
+}
+.toggle input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.axis-select {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.axis-select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.history-row button { padding: 4px 10px; }
+
+/* ---------- Floating overlay buttons inside viewports ---------- */
+
+.viewport-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 5;
+}
+.viewport-btn {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+.viewport-btn:hover {
+  background: rgba(0, 0, 0, 0.65);
+  border-color: var(--accent);
+}
+.viewport-hud {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 11px;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+}
+/* Step instruction: centered so it reads as guidance, not as a mode badge.
+   NB: the modifier is `step-hint`, not `step` — `.step` is the stepper's list
+   item (position: relative, flex: 1), and a bare `.step` here inherited it and
+   stretched the pill across the viewport. */
+.viewport-hud.step-hint {
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 24px);
+  text-align: center;
+  border-color: rgba(95, 179, 245, 0.45);
+  color: #d7ecff;
+}
+.viewport-hud.fly {
+  border-color: #7fd8ff;
+  color: #cdeeff;
+}
+
+button.x {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 0 4px;
+  font-size: 13px;
+}
+button.x:hover { color: var(--err); }
+
+.pending {
+  color: var(--warn);
+}
+
+ul.marker-list, ul.pose-list, ul.result-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+/* Markers can be many — let the list grow but cap at most-of-viewport so it
+   doesn't push the Run button off the bottom of the sidebar. */
+ul.marker-list { max-height: min(60vh, 600px); }
+ul.pose-list   { max-height: 240px; }
+ul.result-list { max-height: 240px; }
+ul.marker-list li, ul.pose-list li, ul.result-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+ul.marker-list li:last-child, ul.pose-list li:last-child, ul.result-list li:last-child {
+  border-bottom: none;
+}
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.arrow { color: var(--muted); }
+ul.marker-list code { color: var(--text); }
+ul.pose-list li > span:first-child,
+ul.result-list li > span:first-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin: 8px 0;
+  font-size: 12px;
+}
+.control input[type="range"] { width: 100%; }
+
+.error {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(240, 107, 107, 0.1);
+  border: 1px solid var(--err);
+  color: var(--err);
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.rejected {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 192, 91, 0.08);
+  border: 1px solid var(--warn);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.rejected-title { color: var(--warn); font-weight: 600; margin-bottom: 4px; }
+.rejected ul { padding-left: 16px; margin: 4px 0; }
+
+/* ---------- Preview mode ---------- */
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: 0;
+}
+.preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--muted);
+  text-align: center;
+}
+.preview-empty h2 { margin: 0 0 8px 0; color: var(--text); font-weight: 600; font-size: 18px; }
+.preview-empty p { margin: 0; max-width: 320px; line-height: 1.5; }
+
+ul.pose-list-selectable li {
+  cursor: pointer;
+  transition: background 0.08s;
+}
+ul.pose-list-selectable li:hover { background: rgba(95, 179, 245, 0.08); }
+ul.pose-list-selectable li.selected {
+  background: rgba(95, 179, 245, 0.18);
+  color: var(--text);
+}
+ul.pose-list-selectable li .seq {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--muted);
+  font-size: 11px;
+  width: 36px;
+  flex-shrink: 0;
+}
+ul.pose-list-selectable li.selected .seq { color: var(--accent); }
+
+/* ---- Static info pages (footer + modal overlay) ---- */
+.info-footer {
+  padding: 8px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+.info-footer .link { color: var(--muted); }
+.info-footer .link:hover { color: var(--accent); }
+.info-footer-sep { color: var(--border); }
+
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+.info-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: min(680px, 100%);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+.info-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 8px 0 8px;
+  border-bottom: 1px solid var(--border);
+}
+.info-tab {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 2px solid transparent;
+}
+.info-tab:hover { color: var(--text); }
+.info-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.info-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 6px 8px;
+}
+.info-close:hover { color: var(--text); }
+.info-content {
+  padding: 18px 22px 24px;
+  overflow-y: auto;
+  color: var(--text);
+  line-height: 1.55;
+}
+.info-content h2 { margin: 0 0 12px; font-size: 20px; }
+.info-content h3 { margin: 18px 0 6px; font-size: 14px; color: var(--text); }
+.info-content p { margin: 0 0 10px; }
+.info-content ul, .info-content ol { margin: 0 0 10px; padding-left: 20px; }
+.info-content li { margin: 4px 0; }
+.info-content a { color: var(--accent); }
+.info-content .subtle { color: var(--muted); font-size: 13px; }
+
+/* ---- Advanced wrap knobs + presets ---- */
+.advanced-box {
+  margin: 6px 0 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.preset-row { display: flex; gap: 6px; margin-bottom: 2px; }
+.preset {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 5px 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+.preset:hover { color: var(--text); }
+.preset.active {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(95, 179, 245, 0.12);
+}
+
+/* ---- Mode-first tool selection screen ---- */
+.tool-select { padding: 40px 24px; overflow-y: auto; }
+.tool-select-head { text-align: center; margin-bottom: 28px; }
+.tool-select-head h1 { margin: 0 0 6px; font-size: 26px; color: var(--text); }
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.tool-card {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.tool-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.tool-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tool-card h3 { margin: 4px 0 0; font-size: 17px; color: var(--text); }
+.tool-card p { margin: 0; font-size: 12px; line-height: 1.45; }
+.tool-card-pick {
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.tool-card-pick b { color: var(--text); }
+.tool-card-cta {
+  margin-top: auto;
+  padding-top: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 13px;
+}
+.tool-card:hover .tool-card-cta { text-decoration: underline; }
+.tool-card-img {
+  width: 100%;
+  height: 96px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+.tool-card-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  border: 1px dashed var(--border);
+}
+.tool-card-img.placeholder .arrow { color: var(--accent); font-size: 18px; }
+.beta-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: var(--warn);
+  color: #1a1400;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.beta-badge.inline {
+  position: static;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ---- Per-tool header + stepper ---- */
+.tool-header { padding-bottom: 10px; }
+.tool-header-row { display: flex; align-items: center; gap: 12px; }
+.tool-title { margin: 0; font-size: 18px; color: var(--text); display: flex; align-items: center; }
+.stepper {
+  list-style: none;
+  display: flex;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.step {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--muted);
+  position: relative;
+}
+/* The whole step is a button: the stepper doubles as the way back to a step
+   you already finished. */
+.step-btn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+.step-btn:hover { background: rgba(255, 255, 255, 0.04); }
+.step-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.step-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.step.current .step-btn { background: rgba(95, 179, 245, 0.1); border-color: var(--border); }
+.step.current .step-dot { border-color: var(--accent); color: var(--accent); }
+.step.done .step-dot { background: var(--accent); border-color: var(--accent); color: #05121f; }
+.step.current .step-label { color: var(--text); }
+
+/* Persistent "where am I" chips under the stepper. */
+.tool-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 10px;
+  font-size: 11px;
+}
+.tool-status span {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.tool-status .ok { color: var(--ok); border-color: rgba(109, 202, 139, 0.35); }
+.tool-status .todo { color: var(--muted); }
+
+/* ---- The step guide: what to do, right next to the controls that do it ---- */
+.step-guide {
+  border-color: rgba(95, 179, 245, 0.35);
+  background: linear-gradient(180deg, rgba(95, 179, 245, 0.08), transparent 60%), var(--panel-2);
+}
+.step-guide-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.step-guide-num {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.step-guide-optional {
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 6px;
+}
+.step-guide h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+.step-guide-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.step-guide-list li { padding-left: 2px; }
+.step-guide-list li::marker { color: var(--accent); font-weight: 600; }
+.step-guide-why {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Collapsed advanced blocks inside a step. */
+.adv-details > summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.adv-details > summary:hover { color: var(--text); }
+
+.view-panel { margin-top: auto; }
+.view-panel .toggle-row { margin: 0; flex-wrap: wrap; }
+
+/* ---- HelpTip popover ---- */
+.helptip { position: relative; display: inline-flex; margin-left: 8px; }
+.helptip-btn {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+.helptip-btn:hover { color: var(--text); border-color: var(--accent); }
+/* FIXED, not absolute: the sidebar hugs the right edge of the window, so a
+   popover anchored inside it ran straight off-screen. JS supplies left/top/
+   width/max-height already clamped to the viewport. */
+.helptip-pop {
+  position: fixed;
+  z-index: 500;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  overscroll-behavior: contain;
+}
+.helptip-pop h4 { margin: 0 0 6px; font-size: 13px; }
+.helptip-pop p { margin: 0 0 6px; }
