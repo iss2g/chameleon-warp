@@ -25,6 +25,11 @@ Chameleon Warp is a local web app for character and asset work. You load a
 press one button. Everything runs on your computer: the browser UI talks to a
 local Python backend, and your meshes never leave the machine.
 
+> **Public demo:** Try Chameleon Warp at [chameleonwarp.com](https://chameleonwarp.com).
+> This is a public demonstration instance, not a production service. Unlike a
+> local installation, it does not guarantee the privacy of uploaded models.
+> Upload only models that are not confidential or otherwise sensitive.
+
 It is built on the Sumner–Popović *Deformation Transfer for Triangle Meshes*
 method (via [mickare/Deformation-Transfer-for-Triangle-Meshes](https://github.com/mickare/Deformation-Transfer-for-Triangle-Meshes)),
 extended with a surface-aware wrap solver, region editing and a body-aware
